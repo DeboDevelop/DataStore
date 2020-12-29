@@ -1,19 +1,28 @@
 const fs = require("fs");
+const path = require("path");
 
 class Database {
     constructor(name, filePath = __dirname) {
         this.name = name;
         try {
-            fs.lstatSync(filePath).isDirectory();
-            this.filePath = filePath;
+            if (fs.lstatSync(filePath).isDirectory() == true) this.filePath = filePath;
+            else {
+                console.error("Path is not a Directory");
+                console.error("Using Default path to save data");
+                this.filePath = __dirname;
+            }
         } catch (e) {
             if (e.code == "ENOENT") {
-                console.log("No file or Directory Exist: " + filePath);
-                console.log("Using Default path to save data");
+                console.error("No file or Directory Exist: " + filePath);
+                console.error("Using Default path to save data");
                 this.filePath = __dirname;
-            } else {
-                throw e;
-            }
+            } else throw e;
+        }
+        try {
+            fs.mkdirSync(path.join(this.filePath, "data"));
+        } catch (e) {
+            if (e.code == "EEXIST") console.log("Directory already exist! Data will be saved there.");
+            else throw e;
         }
     }
     printName() {
