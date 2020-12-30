@@ -1,6 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 
+function deleteFileAfterSomeTime(database, filename, seconds) {
+    setTimeout(() => {
+        database.deleteData(filename);
+    }, seconds * 1000);
+}
+
 class Database {
     constructor(name, file_path = __dirname) {
         this.name = name;
@@ -35,7 +41,7 @@ class Database {
             return false;
         }
     }
-    createData(key, value) {
+    createData(key, value, seconds = undefined) {
         if (key.length > 32) {
             return new Promise(function (resolve, reject) {
                 reject({ status: "Error", msg: "Key is more than 32 characters." });
@@ -53,10 +59,14 @@ class Database {
                 });
             } else {
                 let file_p = path.join(this.file_path, "data", `${key}.json`);
+                const curr_obj = this;
                 return new Promise(function (resolve, reject) {
                     fs.writeFile(file_p, JSON.stringify(value), "utf8", err => {
                         if (err) reject(err);
                         else {
+                            if (seconds !== undefined) {
+                                deleteFileAfterSomeTime(curr_obj, key, seconds);
+                            }
                             resolve({ status: "Sucess", msg: "File is Created Successfully." });
                         }
                     });
