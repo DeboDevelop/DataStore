@@ -1,10 +1,76 @@
 const fs = require("fs");
 const path = require("path");
 
+let config_data = [];
+
 function deleteFileAfterSomeTime(database, filename, seconds) {
+    let curr_time = new Date().getTime();
+    let file_p = path.join(database.file_path, "config", `${database.name}.json`);
+    let config_obj = {
+        database_name: database.name,
+        file_name: filename,
+        exp_time: curr_time + seconds * 1000,
+    };
+    config_data.push(config_obj);
+    try {
+        fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
+    } catch (e) {
+        throw e;
+    }
     setTimeout(() => {
         database.deleteData(filename);
+        let newArr = config_data.filter(item => item.file_name != config_obj.file_name);
+        try {
+            fs.writeFileSync(file_p, JSON.stringify(newArr), "utf8");
+        } catch (e) {
+            throw e;
+        }
     }, seconds * 1000);
+}
+
+function checkConfigFile(file_p) {
+    try {
+        if (fs.lstatSync(file_p).isFile()) return true;
+        else return false;
+    } catch (e) {
+        //console.log(e);
+        return false;
+    }
+}
+
+function createConfigFile(database) {
+    let file_p = path.join(database.file_path, "config", `${database.name}.json`);
+    try {
+        if (checkConfigFile(file_p)) {
+            console.log("Config File Exist! Backing the data");
+            config_data = JSON.parse(fs.readFileSync(file_p, "utf8"));
+            deleteOutdatedFile(database);
+        } else {
+            fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
+        }
+    } catch (e) {
+        throw e;
+    }
+}
+
+function deleteOutdatedFile(database) {
+    console.log("Deleting Outdated Data");
+    let file_p = path.join(database.file_path, "config", `${database.name}.json`);
+    try {
+        let curr_time = new Date().getTime();
+        let newArr = [];
+        for (let i = 0; i < config_data.length; i++) {
+            if (config_data[i].exp_time < curr_time) {
+                database.deleteData(config_data[i].file_name);
+            } else {
+                newArr.push(config_data[i]);
+            }
+        }
+        config_data = newArr;
+        fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
+    } catch (e) {
+        throw e;
+    }
 }
 
 class Database {
@@ -30,6 +96,13 @@ class Database {
             if (e.code == "EEXIST") console.log("Directory already exist! Data will be saved there.");
             else throw e;
         }
+        try {
+            fs.mkdirSync(path.join(this.file_path, "config"));
+        } catch (e) {
+            if (e.code == "EEXIST") console.log("Config Directory Exist");
+            else throw e;
+        }
+        createConfigFile(this);
     }
     fileExist(file_name) {
         let file_p = path.join(this.file_path, "data", file_name);
