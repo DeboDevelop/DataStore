@@ -2,51 +2,121 @@ const fs = require("fs");
 const path = require("path");
 
 class Database {
-    constructor(name, filePath = __dirname) {
+    constructor(name, file_path = __dirname) {
         this.name = name;
         try {
-            if (fs.lstatSync(filePath).isDirectory() == true) this.filePath = filePath;
+            if (fs.lstatSync(file_path).isDirectory() == true) this.file_path = file_path;
             else {
                 console.error("Path is not a Directory");
                 console.error("Using Default path to save data");
-                this.filePath = __dirname;
+                this.file_path = __dirname;
             }
         } catch (e) {
             if (e.code == "ENOENT") {
-                console.error("No file or Directory Exist: " + filePath);
+                console.error("No file or Directory Exist: " + file_path);
                 console.error("Using Default path to save data");
-                this.filePath = __dirname;
+                this.file_path = __dirname;
             } else throw e;
         }
         try {
-            fs.mkdirSync(path.join(this.filePath, "data"));
-            this.filePath = path.join(this.filePath, "data");
+            fs.mkdirSync(path.join(this.file_path, "data"));
         } catch (e) {
             if (e.code == "EEXIST") console.log("Directory already exist! Data will be saved there.");
             else throw e;
         }
     }
+    fileExist(file_name) {
+        let file_p = path.join(this.file_path, "data", file_name);
+        try {
+            if (fs.lstatSync(file_p).isFile()) return true;
+            else return false;
+        } catch (e) {
+            //console.log(e);
+            return false;
+        }
+    }
     createData(key, value) {
         if (key.length > 32) {
-            return { errMsg: "Key is more than 32 characters." };
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Key is more than 32 characters." });
+            });
         }
         if (Buffer.byteLength(JSON.stringify(value)) > 16 * 1024) {
-            return { errMsg: "Value is more than 16 KB." };
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Value is more than 16 KB." });
+            });
         }
         try {
-            if (fs.existsSync(path.join(this.filePath, `${key}.json`))) {
-                return { errMsg: "Key already exist." };
+            if (this.fileExist(`${key}.json`)) {
+                return new Promise(function (resolve, reject) {
+                    reject({ status: "Error", msg: "Key already exist." });
+                });
             } else {
-                fs.writeFileSync(path.join(this.filePath, `${key}.json`), JSON.stringify(value), "utf8");
-                return { successMsg: "File is Created Successfully." };
+                let file_p = path.join(this.file_path, "data", `${key}.json`);
+                return new Promise(function (resolve, reject) {
+                    fs.writeFile(file_p, JSON.stringify(value), "utf8", err => {
+                        if (err) reject(err);
+                        else {
+                            resolve({ status: "Sucess", msg: "File is Created Successfully." });
+                        }
+                    });
+                });
             }
         } catch (e) {
-            return e;
+            return new Promise(function (resolve, reject) {
+                reject(e);
+            });
+        }
+    }
+    readData(key) {
+        try {
+            if (this.fileExist(`${key}.json`)) {
+                const file_p = path.join(this.file_path, "data", `${key}.json`);
+                return new Promise(function (resolve, reject) {
+                    fs.readFile(file_p, "utf8", (err, data) => {
+                        if (err) reject(err);
+                        else {
+                            resolve(data);
+                        }
+                    });
+                });
+            } else {
+                return new Promise(function (resolve, reject) {
+                    reject({ status: "Error", msg: "Key doesn't exist" });
+                });
+            }
+        } catch (e) {
+            return new Promise(function (resolve, reject) {
+                reject(e);
+            });
+        }
+    }
+    deleteData(key) {
+        try {
+            if (this.fileExist(`${key}.json`)) {
+                const file_p = path.join(this.file_path, "data", `${key}.json`);
+                return new Promise(function (resolve, reject) {
+                    fs.unlink(file_p, err => {
+                        if (err) reject(err);
+                        else {
+                            resolve({ status: "Sucess", msg: "File is Successfully Deleted." });
+                        }
+                    });
+                });
+            } else {
+                return new Promise(function (resolve, reject) {
+                    reject({ status: "Error", msg: "Key doesn't exist" });
+                });
+            }
+        } catch (e) {
+            return new Promise(function (resolve, reject) {
+                reject(e);
+            });
         }
     }
     printName() {
         console.log(this.name);
-        console.log(this.filePath);
+        console.log(this.file_path);
     }
 }
 
