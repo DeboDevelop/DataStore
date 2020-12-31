@@ -316,12 +316,12 @@ class Database {
                     });
             }
             if (file_obj.hasOwnProperty(key)) {
-                delete file_obj[key];
-                cache.set(`${key_hash}.json`, file_obj);
                 return new Promise(function (resolve, reject) {
                     lockfile
                         .lock(file_p)
                         .then(release => {
+                            delete file_obj[key];
+                            cache.set(`${key_hash}.json`, file_obj);
                             fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
                                 if (err) {
                                     reject(err);
