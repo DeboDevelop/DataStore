@@ -220,8 +220,9 @@ class Database {
                         .lock(file_p)
                         .then(release => {
                             fs.readFile(file_p, "utf-8", function (err, data) {
-                                if (err) reject(err);
-                                else {
+                                if (err) {
+                                    reject(err);
+                                } else {
                                     file_obj = JSON.parse(data);
                                     cache.set(`${key_hash}.json`, file_obj);
                                     if (file_obj.hasOwnProperty(key)) {
@@ -243,7 +244,11 @@ class Database {
                 });
             } else {
                 return new Promise(function (resolve, reject) {
-                    resolve(file_obj[key]);
+                    if (file_obj.hasOwnProperty(key)) {
+                        resolve(file_obj[key]);
+                    } else {
+                        reject({ status: "Error", msg: "Key doesn't exist" });
+                    }
                 });
             }
         } catch (e) {
