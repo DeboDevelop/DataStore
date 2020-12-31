@@ -17,5 +17,8 @@
     "bugs": {
         "url": "https://github.com/DeboDevelop/DataStore/issues"
     },
-    "homepage": "https://github.com/DeboDevelop/DataStore#readme"
+    "homepage": "https://github.com/DeboDevelop/DataStore#readme",
+    "dependencies": {
+        "lru-cache": "^6.0.0"
+    }
 }
