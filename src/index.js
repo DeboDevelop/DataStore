@@ -215,32 +215,6 @@ class Database {
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
             if (file_obj == undefined) {
-                file_obj = JSON.parse(fs.readFileSync(file_p, "utf8"));
-                cache.set(`${key_hash}.json`, file_obj);
-                return new Promise(function (resolve, reject) {
-                    if (file_obj.hasOwnProperty(key)) {
-                        resolve(file_obj[key]);
-                    } else {
-                        reject({ status: "Error", msg: "Key doesn't exist" });
-                    }
-                });
-            } else {
-                return new Promise(function (resolve, reject) {
-                    resolve(file_obj[key]);
-                });
-            }
-        } catch (e) {
-            return new Promise(function (resolve, reject) {
-                reject(e);
-            });
-        }
-    }
-    readData2(key) {
-        try {
-            let key_hash = keyHash(key);
-            let file_obj = cache.get(`${key_hash}.json`);
-            let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
-            if (file_obj == undefined) {
                 return new Promise(function (resolve, reject) {
                     lockfile
                         .lock(file_p)
@@ -261,7 +235,7 @@ class Database {
                         })
                         .catch(e => {
                             if (e.code == "ELOCKED") {
-                                sleepProcess(readHello);
+                                sleepProcess(readData, key);
                             } else {
                                 console.log(e);
                             }
