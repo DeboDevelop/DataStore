@@ -98,11 +98,47 @@ function keyHash(key) {
     return num % 10;
 }
 
-function sleepProcess(func, key, value, seconds) {
+function sleepProcessCreate(obj, key, value, seconds) {
+    console.log(
+        "Create data process for key : " +
+            key +
+            " is put to sleep, proper message will be displayed when the process execute"
+    );
     setTimeout(() => {
-        if (value == undefined && seconds == undefined) func(key);
-        else if (seconds == undefined) func(key, value);
-        else func(key, value, seconds);
+        if (seconds == undefined)
+            obj.createData(key, value)
+                .then(res => console.log(res))
+                .catch(err => console.log(err));
+        else
+            obj.createData(key, value, seconds)
+                .then(res => console.log(res))
+                .catch(err => console.log(err));
+    }, 5 * 1000);
+}
+
+function sleepProcessRead(obj, key) {
+    console.log(
+        "Read data process for key : " +
+            key +
+            " is put to sleep, proper message will be displayed when the process execute"
+    );
+    setTimeout(() => {
+        obj.readData(key)
+            .then(res => console.log(res))
+            .catch(err => console.log(err));
+    }, 5 * 1000);
+}
+
+function sleepProcessDelete(obj, key) {
+    console.log(
+        "Delete data process for key : " +
+            key +
+            " is put to sleep, proper message will be displayed when the process execute"
+    );
+    setTimeout(() => {
+        obj.deleteData(key)
+            .then(res => console.log(res))
+            .catch(err => console.log(err));
     }, 5 * 1000);
 }
 
@@ -196,7 +232,7 @@ class Database {
                         })
                         .catch(e => {
                             if (e.code == "ELOCKED") {
-                                sleepProcess(createData, key, value, seconds);
+                                sleepProcessCreate(curr_obj, key, value, seconds);
                             } else {
                                 console.log(e);
                             }
@@ -215,6 +251,7 @@ class Database {
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
             if (file_obj == undefined) {
+                let curr_obj = this;
                 return new Promise(function (resolve, reject) {
                     lockfile
                         .lock(file_p)
@@ -236,7 +273,7 @@ class Database {
                         })
                         .catch(e => {
                             if (e.code == "ELOCKED") {
-                                sleepProcess(readData, key);
+                                sleepProcessRead(curr_obj, key);
                             } else {
                                 console.log(e);
                             }
@@ -260,22 +297,47 @@ class Database {
     deleteData(key) {
         try {
             let key_hash = keyHash(key);
+            let curr_obj = this;
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
             if (file_obj == undefined) {
-                file_obj = JSON.parse(fs.readFileSync(file_p, "utf8"));
+                lockfile
+                    .lock(file_p)
+                    .then(release => {
+                        file_obj = fs.readFileSync(file_p, "utf-8");
+                        return release();
+                    })
+                    .catch(e => {
+                        if (e.code == "ELOCKED") {
+                            sleepProcessDelete(curr_obj, key);
+                        } else {
+                            console.log(e);
+                        }
+                    });
             }
             if (file_obj.hasOwnProperty(key)) {
                 delete file_obj[key];
                 cache.set(`${key_hash}.json`, file_obj);
                 return new Promise(function (resolve, reject) {
-                    fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve({ status: "Sucess", msg: "File is Successfully Deleted." });
-                        }
-                    });
+                    lockfile
+                        .lock(file_p)
+                        .then(release => {
+                            fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve({ status: "Sucess", msg: "File is Successfully Deleted." });
+                                }
+                            });
+                            return release();
+                        })
+                        .catch(e => {
+                            if (e.code == "ELOCKED") {
+                                sleepProcessDelete(curr_obj, key);
+                            } else {
+                                console.log(e);
+                            }
+                        });
                 });
             } else {
                 return new Promise(function (resolve, reject) {
