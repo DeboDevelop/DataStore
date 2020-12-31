@@ -19,6 +19,7 @@
     },
     "homepage": "https://github.com/DeboDevelop/DataStore#readme",
     "dependencies": {
-        "lru-cache": "^6.0.0"
+        "lru-cache": "^6.0.0",
+        "proper-lockfile": "^4.1.1"
     }
 }

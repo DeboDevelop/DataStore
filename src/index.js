@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const lockfile = require("proper-lockfile");
 var LRU = require("lru-cache"),
     options = {
         max: 5,
@@ -97,6 +98,14 @@ function keyHash(key) {
     return num % 10;
 }
 
+function sleepProcess(func, key, value, seconds) {
+    setTimeout(() => {
+        if (value == undefined && seconds == undefined) func(key);
+        else if (seconds == undefined) func(key, value);
+        else func(key, value, seconds);
+    }, 5 * 1000);
+}
+
 class Database {
     constructor(name, file_path = __dirname) {
         this.name = name;
@@ -171,15 +180,27 @@ class Database {
                 cache.set(`${key_hash}.json`, file_obj);
                 let curr_obj = this;
                 return new Promise(function (resolve, reject) {
-                    fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
-                        if (err) reject(err);
-                        else {
-                            if (seconds !== undefined) {
-                                deleteFileAfterSomeTime(curr_obj, key_hash, key, seconds);
+                    lockfile
+                        .lock(file_p)
+                        .then(release => {
+                            fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
+                                if (err) reject(err);
+                                else {
+                                    if (seconds !== undefined) {
+                                        deleteFileAfterSomeTime(curr_obj, key_hash, key, seconds);
+                                    }
+                                    resolve({ status: "Sucess", msg: "File is Created Successfully." });
+                                }
+                            });
+                            return release();
+                        })
+                        .catch(e => {
+                            if (e.code == "ELOCKED") {
+                                sleepProcess(createData, key, value, seconds);
+                            } else {
+                                console.log(e);
                             }
-                            resolve({ status: "Sucess", msg: "File is Created Successfully." });
-                        }
-                    });
+                        });
                 });
             }
         } catch (e) {
