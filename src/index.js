@@ -16,75 +16,78 @@ var LRU = require("lru-cache"),
 
 let config_data = [];
 
-// function deleteFileAfterSomeTime(database, filename, seconds) {
-//     let curr_time = new Date().getTime();
-//     let file_p = path.join(database.file_path, "config", `${database.name}.json`);
-//     let config_obj = {
-//         database_name: database.name,
-//         file_name: filename,
-//         exp_time: curr_time + seconds * 1000,
-//     };
-//     config_data.push(config_obj);
-//     try {
-//         fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
-//     } catch (e) {
-//         throw e;
-//     }
-//     setTimeout(() => {
-//         database.deleteData(filename);
-//         let newArr = config_data.filter(item => item.file_name != config_obj.file_name);
-//         try {
-//             fs.writeFileSync(file_p, JSON.stringify(newArr), "utf8");
-//         } catch (e) {
-//             throw e;
-//         }
-//     }, seconds * 1000);
-// }
+function deleteFileAfterSomeTime(database, filename, key, seconds) {
+    let curr_time = new Date().getTime();
+    let file_p = path.join(database.file_path, "config", `${database.name}.json`);
+    let config_obj = {
+        database_name: database.name,
+        file_name: filename,
+        key: key,
+        exp_time: curr_time + seconds * 1000,
+    };
+    config_data.push(config_obj);
+    try {
+        fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
+    } catch (e) {
+        throw e;
+    }
+    setTimeout(() => {
+        let x = database.deleteData(key);
+        x.then(res => console.log(res)).catch(err => console.log(err));
+        let newArr = config_data.filter(item => item.key != config_obj.key);
+        try {
+            fs.writeFileSync(file_p, JSON.stringify(newArr), "utf8");
+        } catch (e) {
+            throw e;
+        }
+    }, seconds * 1000);
+}
 
-// function checkConfigFile(file_p) {
-//     try {
-//         if (fs.lstatSync(file_p).isFile()) return true;
-//         else return false;
-//     } catch (e) {
-//         //console.log(e);
-//         return false;
-//     }
-// }
+function checkConfigFile(file_p) {
+    try {
+        if (fs.lstatSync(file_p).isFile()) return true;
+        else return false;
+    } catch (e) {
+        //console.log(e);
+        return false;
+    }
+}
 
-// function createConfigFile(database) {
-//     let file_p = path.join(database.file_path, "config", `${database.name}.json`);
-//     try {
-//         if (checkConfigFile(file_p)) {
-//             console.log("Config File Exist! Backing the data");
-//             config_data = JSON.parse(fs.readFileSync(file_p, "utf8"));
-//             deleteOutdatedFile(database);
-//         } else {
-//             fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
-//         }
-//     } catch (e) {
-//         throw e;
-//     }
-// }
+function createConfigFile(database) {
+    let file_p = path.join(database.file_path, "config", `${database.name}.json`);
+    try {
+        if (checkConfigFile(file_p)) {
+            console.log("Config File Exist! Backing the data");
+            config_data = JSON.parse(fs.readFileSync(file_p, "utf8"));
+            deleteOutdatedFile(database);
+        } else {
+            fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
+        }
+    } catch (e) {
+        throw e;
+    }
+}
 
-// function deleteOutdatedFile(database) {
-//     console.log("Deleting Outdated Data");
-//     let file_p = path.join(database.file_path, "config", `${database.name}.json`);
-//     try {
-//         let curr_time = new Date().getTime();
-//         let newArr = [];
-//         for (let i = 0; i < config_data.length; i++) {
-//             if (config_data[i].exp_time < curr_time) {
-//                 database.deleteData(config_data[i].file_name);
-//             } else {
-//                 newArr.push(config_data[i]);
-//             }
-//         }
-//         config_data = newArr;
-//         fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
-//     } catch (e) {
-//         throw e;
-//     }
-// }
+function deleteOutdatedFile(database) {
+    console.log("Deleting Outdated Data");
+    let file_p = path.join(database.file_path, "config", `${database.name}.json`);
+    try {
+        let curr_time = new Date().getTime();
+        let newArr = [];
+        for (let i = 0; i < config_data.length; i++) {
+            if (config_data[i].exp_time < curr_time) {
+                let x = database.deleteData(config_data[i].key);
+                x.then(res => console.log(res)).catch(err => console.log(err));
+            } else {
+                newArr.push(config_data[i]);
+            }
+        }
+        config_data = newArr;
+        fs.writeFileSync(file_p, JSON.stringify(config_data), "utf8");
+    } catch (e) {
+        throw e;
+    }
+}
 
 function keyHash(key) {
     let num = 0;
@@ -127,7 +130,7 @@ class Database {
             if (e.code == "EEXIST") console.log("Config Directory Exist");
             else throw e;
         }
-        // createConfigFile(this);
+        createConfigFile(this);
     }
     fileExist(file_name) {
         let file_p = path.join(this.file_path, "data", file_name);
@@ -152,7 +155,7 @@ class Database {
         }
         try {
             let key_hash = keyHash(key);
-            //console.log(key_hash);
+            console.log(this.name + " : " + key_hash);
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
             if (file_obj == undefined) {
@@ -166,13 +169,14 @@ class Database {
             } else {
                 file_obj[key] = value;
                 cache.set(`${key_hash}.json`, file_obj);
+                let curr_obj = this;
                 return new Promise(function (resolve, reject) {
                     fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
                         if (err) reject(err);
                         else {
-                            // if (seconds !== undefined) {
-                            //     deleteFileAfterSomeTime(curr_obj, key, seconds);
-                            // }
+                            if (seconds !== undefined) {
+                                deleteFileAfterSomeTime(curr_obj, key_hash, key, seconds);
+                            }
                             resolve({ status: "Sucess", msg: "File is Created Successfully." });
                         }
                     });
@@ -223,8 +227,9 @@ class Database {
                 cache.set(`${key_hash}.json`, file_obj);
                 return new Promise(function (resolve, reject) {
                     fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
-                        if (err) reject(err);
-                        else {
+                        if (err) {
+                            reject(err);
+                        } else {
                             resolve({ status: "Sucess", msg: "File is Successfully Deleted." });
                         }
                     });
