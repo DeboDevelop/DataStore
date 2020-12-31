@@ -152,14 +152,14 @@ class Database {
         }
         try {
             let key_hash = keyHash(key);
-            console.log(key_hash);
+            //console.log(key_hash);
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
             if (file_obj == undefined) {
                 file_obj = JSON.parse(fs.readFileSync(file_p, "utf8"));
                 cache.set(`${key_hash}.json`, file_obj);
             }
-            if (key in file_obj) {
+            if (file_obj.hasOwnProperty(key)) {
                 return new Promise(function (resolve, reject) {
                     reject({ status: "Error", msg: "Key already exist." });
                 });
@@ -188,13 +188,12 @@ class Database {
         try {
             let key_hash = keyHash(key);
             let file_obj = cache.get(`${key_hash}.json`);
-            console.log("Cache Result " + file_obj);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
             if (file_obj == undefined) {
                 file_obj = JSON.parse(fs.readFileSync(file_p, "utf8"));
                 cache.set(`${key_hash}.json`, file_obj);
                 return new Promise(function (resolve, reject) {
-                    if (key in file_obj) {
+                    if (file_obj.hasOwnProperty(key)) {
                         resolve(file_obj[key]);
                     } else {
                         reject({ status: "Error", msg: "Key doesn't exist" });
@@ -213,10 +212,17 @@ class Database {
     }
     deleteData(key) {
         try {
-            if (this.fileExist(`${key}.json`)) {
-                const file_p = path.join(this.file_path, "data", `${key}.json`);
+            let key_hash = keyHash(key);
+            let file_obj = cache.get(`${key_hash}.json`);
+            let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
+            if (file_obj == undefined) {
+                file_obj = JSON.parse(fs.readFileSync(file_p, "utf8"));
+            }
+            if (file_obj.hasOwnProperty(key)) {
+                delete file_obj[key];
+                cache.set(`${key_hash}.json`, file_obj);
                 return new Promise(function (resolve, reject) {
-                    fs.unlink(file_p, err => {
+                    fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
                         if (err) reject(err);
                         else {
                             resolve({ status: "Sucess", msg: "File is Successfully Deleted." });
@@ -233,10 +239,6 @@ class Database {
                 reject(e);
             });
         }
-    }
-    printName() {
-        console.log(this.name);
-        console.log(this.file_path);
     }
 }
 
