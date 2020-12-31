@@ -235,6 +235,49 @@ class Database {
             });
         }
     }
+    readData2(key) {
+        try {
+            let key_hash = keyHash(key);
+            let file_obj = cache.get(`${key_hash}.json`);
+            let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
+            if (file_obj == undefined) {
+                return new Promise(function (resolve, reject) {
+                    lockfile
+                        .lock(file_p)
+                        .then(release => {
+                            fs.readFile(file_p, "utf-8", function (err, data) {
+                                if (err) reject(err);
+                                else {
+                                    file_obj = JSON.parse(data);
+                                    cache.set(`${key_hash}.json`, file_obj);
+                                    if (file_obj.hasOwnProperty(key)) {
+                                        resolve(file_obj[key]);
+                                    } else {
+                                        reject({ status: "Error", msg: "Key doesn't exist" });
+                                    }
+                                }
+                            });
+                            return release();
+                        })
+                        .catch(e => {
+                            if (e.code == "ELOCKED") {
+                                sleepProcess(readHello);
+                            } else {
+                                console.log(e);
+                            }
+                        });
+                });
+            } else {
+                return new Promise(function (resolve, reject) {
+                    resolve(file_obj[key]);
+                });
+            }
+        } catch (e) {
+            return new Promise(function (resolve, reject) {
+                reject(e);
+            });
+        }
+    }
     deleteData(key) {
         try {
             let key_hash = keyHash(key);
