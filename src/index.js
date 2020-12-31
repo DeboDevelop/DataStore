@@ -186,19 +186,23 @@ class Database {
     }
     readData(key) {
         try {
-            if (this.fileExist(`${key}.json`)) {
-                const file_p = path.join(this.file_path, "data", `${key}.json`);
+            let key_hash = keyHash(key);
+            let file_obj = cache.get(`${key_hash}.json`);
+            console.log("Cache Result " + file_obj);
+            let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
+            if (file_obj == undefined) {
+                file_obj = JSON.parse(fs.readFileSync(file_p, "utf8"));
+                cache.set(`${key_hash}.json`, file_obj);
                 return new Promise(function (resolve, reject) {
-                    fs.readFile(file_p, "utf8", (err, data) => {
-                        if (err) reject(err);
-                        else {
-                            resolve(data);
-                        }
-                    });
+                    if (key in file_obj) {
+                        resolve(file_obj[key]);
+                    } else {
+                        reject({ status: "Error", msg: "Key doesn't exist" });
+                    }
                 });
             } else {
                 return new Promise(function (resolve, reject) {
-                    reject({ status: "Error", msg: "Key doesn't exist" });
+                    resolve(file_obj[key]);
                 });
             }
         } catch (e) {
