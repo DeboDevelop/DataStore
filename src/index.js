@@ -16,6 +16,7 @@ var LRU = require("lru-cache"),
     otherCache = new LRU(50);
 
 let config_data = [];
+let size = 0;
 
 function deleteFileAfterSomeTime(database, filename, key, seconds) {
     let curr_time = new Date().getTime();
@@ -166,13 +167,24 @@ class Database {
         }
         try {
             fs.mkdirSync(path.join(this.file_path, "data"));
-            for (let i = 0; i < 10; i++) {
-                let file_p = path.join(this.file_path, "data", `${i}.json`);
-                fs.writeFileSync(file_p, "{}", "utf8");
-            }
         } catch (e) {
             if (e.code == "EEXIST") console.log("Directory already exist! Data will be saved there.");
             else throw e;
+        }
+        try {
+            for (let i = 0; i < 10; i++) {
+                let file_p = path.join(this.file_path, "data", `${i}.json`);
+                let value = fs.readFileSync(file_p, "utf8");
+                size += Buffer.byteLength(JSON.stringify(value)) + Buffer.byteLength(`${i}.json`);
+            }
+        } catch (e) {
+            if (e.code == "ENOENT") {
+                for (let i = 0; i < 10; i++) {
+                    let file_p = path.join(this.file_path, "data", `${i}.json`);
+                    fs.writeFileSync(file_p, "{}", "utf8");
+                    size += Buffer.byteLength("{}") + Buffer.byteLength(`${i}.json`);
+                }
+            } else throw e;
         }
         try {
             fs.mkdirSync(path.join(this.file_path, "config"));
@@ -193,6 +205,27 @@ class Database {
         }
     }
     createData(key, value, seconds = undefined) {
+        console.log("Size: " + size);
+        if (size >= 1024 * 1024 * 1024) {
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Size of Database is more than 1 GB, please delete some files." });
+            });
+        }
+        if (typeof key !== "string") {
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Key have to be String" });
+            });
+        }
+        if (typeof value === null) {
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Value is Null" });
+            });
+        }
+        if (typeof value !== "object") {
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Value have to be JSON" });
+            });
+        }
         if (key.length > 32) {
             return new Promise(function (resolve, reject) {
                 reject({ status: "Error", msg: "Key is more than 32 characters." });
@@ -218,6 +251,7 @@ class Database {
                 });
             } else {
                 file_obj[key] = value;
+                size += Buffer.byteLength(JSON.stringify(value)) + Buffer.byteLength(key);
                 cache.set(`${key_hash}.json`, file_obj);
                 let curr_obj = this;
                 return new Promise(function (resolve, reject) {
@@ -253,6 +287,11 @@ class Database {
         }
     }
     readData(key) {
+        if (typeof key !== "string") {
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Key have to be String" });
+            });
+        }
         try {
             let key_hash = keyHash(key);
             let file_obj = cache.get(`${key_hash}.json`);
@@ -270,7 +309,7 @@ class Database {
                                     file_obj = JSON.parse(data);
                                     cache.set(`${key_hash}.json`, file_obj);
                                     if (file_obj.hasOwnProperty(key)) {
-                                        resolve(file_obj[key]);
+                                        resolve({ status: "Success", data: file_obj[key] });
                                     } else {
                                         reject({ status: "Error", msg: "Key doesn't exist" });
                                     }
@@ -291,7 +330,7 @@ class Database {
             } else {
                 return new Promise(function (resolve, reject) {
                     if (file_obj.hasOwnProperty(key)) {
-                        resolve(file_obj[key]);
+                        resolve({ status: "Success", data: file_obj[key] });
                     } else {
                         reject({ status: "Error", msg: "Key doesn't exist" });
                     }
@@ -304,6 +343,11 @@ class Database {
         }
     }
     deleteData(key) {
+        if (typeof key !== "string") {
+            return new Promise(function (resolve, reject) {
+                reject({ status: "Error", msg: "Key have to be String" });
+            });
+        }
         try {
             let key_hash = keyHash(key);
             let curr_obj = this;
@@ -329,6 +373,7 @@ class Database {
                     lockfile
                         .lock(file_p)
                         .then(release => {
+                            size -= Buffer.byteLength(JSON.stringify(file_obj[key])) + Buffer.byteLength(key);
                             delete file_obj[key];
                             cache.set(`${key_hash}.json`, file_obj);
                             fs.writeFile(file_p, JSON.stringify(file_obj), "utf8", err => {
