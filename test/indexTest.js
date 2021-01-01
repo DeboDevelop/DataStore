@@ -7,6 +7,8 @@ let database1;
 
 let key1 = "123456";
 
+let key2 = "654321";
+
 let value1 = {
     read: "Write",
     Music: "Melody",
@@ -15,31 +17,117 @@ let value1 = {
 };
 
 describe("Testing Database", function () {
+    after(function () {
+        console.log("Wait for the Clean up");
+        setTimeout(() => {
+            console.log("Cleaned up");
+            let data_file_path = path.join(database1.file_path, "data");
+            let config_file_path = path.join(database1.file_path, "config");
+            rimraf.sync(data_file_path);
+            rimraf.sync(config_file_path);
+        }, 10 * 1000);
+    });
+
     describe("Test1", function () {
         it("creation of Database", async function () {
-            database1 = new Database("Database");
-            assert.equal(database1.name, "Database");
+            const database_name = "Database";
+            database1 = new Database(database_name);
+            assert.equal(database1.name, database_name);
         });
     });
 
     describe("Test2", function () {
-        it("createData should fail", async function () {
+        it("createData should fail because key is not string", async function () {
             let result;
             try {
                 result = await database1.createData(123, value1);
             } catch (err) {
                 result = err;
             }
-            assert.equal(result.status, "Error");
+            assert.equal(result.msg, "Key have to be String");
         });
     });
 
     describe("Test3", function () {
-        it("Cleanup", function () {
-            let data_file_path = path.join(database1.file_path, "data");
-            let config_file_path = path.join(database1.file_path, "config");
-            rimraf.sync(data_file_path);
-            rimraf.sync(config_file_path);
+        it("createData should fail because value is null", async function () {
+            let result;
+            try {
+                result = await database1.createData(key1, null);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Value is Null");
         });
+    });
+
+    describe("Test4", function () {
+        it("createData should fail because value is not object", async function () {
+            let result;
+            try {
+                result = await database1.createData(key1, "null");
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Value have to be JSON");
+        });
+    });
+
+    describe("Test5", function () {
+        it("createData should fail because key is too large", async function () {
+            let result;
+            try {
+                result = await database1.createData("123123123123123123123123123123123123", value1);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Key is more than 32 characters.");
+        });
+    });
+
+    describe("Test6", function () {
+        it("createData should succeed", async function () {
+            let result;
+            try {
+                result = await database1.createData(key1, value1);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "File is Created Successfully.");
+        });
+    });
+
+    describe("Test7", function () {
+        it("createData should fail because key already exist", async function () {
+            let result;
+            try {
+                result = await database1.createData(key1, value1);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Key already exist.");
+        });
+    });
+
+    describe("Test8", function () {
+        it("createData should succeed", async function () {
+            let result;
+            try {
+                result = await database1.createData(key2, value1, 1);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "File is Created Successfully.");
+        });
+        setTimeout(() => {
+            it("createData should succeed", async function () {
+                let result;
+                try {
+                    result = await database1.createData(key2, value1);
+                } catch (err) {
+                    result = err;
+                }
+                assert.equal(result.msg, "File is Created Successfully.");
+            });
+        }, 2 * 1000);
     });
 });

@@ -215,7 +215,7 @@ class Database {
                 reject({ status: "Error", msg: "Key have to be String" });
             });
         }
-        if (typeof value === null) {
+        if (value === null) {
             return new Promise(function (resolve, reject) {
                 reject({ status: "Error", msg: "Value is Null" });
             });
@@ -237,9 +237,14 @@ class Database {
         }
         try {
             let key_hash = keyHash(key);
-            console.log(this.name + " : " + key_hash);
+            //console.log(this.name + " : " + key_hash);
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
+            if (this.fileExist(`${key_hash}.json`) == false) {
+                return new Promise(function (resolve, reject) {
+                    reject({ status: "Error", msg: "File not Found. Somebody tempared with the file" });
+                });
+            }
             if (file_obj == undefined) {
                 file_obj = JSON.parse(fs.readFileSync(file_p, "utf8"));
                 cache.set(`${key_hash}.json`, file_obj);
@@ -274,7 +279,7 @@ class Database {
                                     .then(res => resolve(res))
                                     .catch(err => reject(err));
                             } else {
-                                console.log(e);
+                                reject(e);
                             }
                         });
                 });
@@ -295,6 +300,11 @@ class Database {
             let key_hash = keyHash(key);
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
+            if (this.fileExist(`${key_hash}.json`) == false) {
+                return new Promise(function (resolve, reject) {
+                    reject({ status: "Error", msg: "File not Found. Somebody tempared with the file" });
+                });
+            }
             if (file_obj == undefined) {
                 let curr_obj = this;
                 return new Promise(function (resolve, reject) {
@@ -322,7 +332,7 @@ class Database {
                                     .then(res => resolve(res))
                                     .catch(err => reject(err));
                             } else {
-                                console.log(e);
+                                reject(e);
                             }
                         });
                 });
@@ -352,6 +362,11 @@ class Database {
             let curr_obj = this;
             let file_obj = cache.get(`${key_hash}.json`);
             let file_p = path.join(this.file_path, "data", `${key_hash}.json`);
+            if (this.fileExist(`${key_hash}.json`) == false) {
+                return new Promise(function (resolve, reject) {
+                    reject({ status: "Error", msg: "File not Found. Somebody tempared with the file" });
+                });
+            }
             if (file_obj == undefined) {
                 lockfile
                     .lock(file_p)
@@ -390,7 +405,7 @@ class Database {
                                     .then(res => resolve(res))
                                     .catch(err => reject(err));
                             } else {
-                                console.log(e);
+                                reject(e);
                             }
                         });
                 });
