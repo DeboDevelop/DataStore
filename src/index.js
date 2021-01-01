@@ -100,46 +100,51 @@ function keyHash(key) {
 
 function sleepProcessCreate(obj, key, value, seconds) {
     console.log(
-        "Create data process for key : " +
-            key +
-            " is put to sleep, proper message will be displayed when the process execute"
+        "Create data process for key : " + key + " is put to sleep, promise will resolve when the process execute"
     );
-    setTimeout(() => {
-        if (seconds == undefined)
-            obj.createData(key, value)
-                .then(res => console.log(res))
-                .catch(err => console.log(err));
-        else
-            obj.createData(key, value, seconds)
-                .then(res => console.log(res))
-                .catch(err => console.log(err));
-    }, 5 * 1000);
+    if (seconds == undefined) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(() => {
+                obj.createData(key, value)
+                    .then(res => resolve(res))
+                    .catch(err => reject(err));
+            }, 5 * 1000);
+        });
+    } else {
+        return new Promise(function (resolve, reject) {
+            setTimeout(() => {
+                obj.createData(key, value, seconds)
+                    .then(res => resolve(res))
+                    .catch(err => reject(err));
+            }, 5 * 1000);
+        });
+    }
 }
 
 function sleepProcessRead(obj, key) {
     console.log(
-        "Read data process for key : " +
-            key +
-            " is put to sleep, proper message will be displayed when the process execute"
+        "Read data process for key : " + key + " is put to sleep, promise will resolve when the process execute"
     );
-    setTimeout(() => {
-        obj.readData(key)
-            .then(res => console.log(res))
-            .catch(err => console.log(err));
-    }, 5 * 1000);
+    return new Promise(function (resolve, reject) {
+        setTimeout(() => {
+            obj.readData(key)
+                .then(res => resolve(res))
+                .catch(err => reject(err));
+        }, 5 * 1000);
+    });
 }
 
 function sleepProcessDelete(obj, key) {
     console.log(
-        "Delete data process for key : " +
-            key +
-            " is put to sleep, proper message will be displayed when the process execute"
+        "Delete data process for key : " + key + " is put to sleep, promise will resolve when the process execute"
     );
-    setTimeout(() => {
-        obj.deleteData(key)
-            .then(res => console.log(res))
-            .catch(err => console.log(err));
-    }, 5 * 1000);
+    return new Promise(function (resolve, reject) {
+        setTimeout(() => {
+            obj.deleteData(key)
+                .then(res => resolve(res))
+                .catch(err => reject(err));
+        }, 5 * 1000);
+    });
 }
 
 class Database {
@@ -232,7 +237,9 @@ class Database {
                         })
                         .catch(e => {
                             if (e.code == "ELOCKED") {
-                                sleepProcessCreate(curr_obj, key, value, seconds);
+                                sleepProcessCreate(curr_obj, key, value, seconds)
+                                    .then(res => resolve(res))
+                                    .catch(err => reject(err));
                             } else {
                                 console.log(e);
                             }
@@ -273,7 +280,9 @@ class Database {
                         })
                         .catch(e => {
                             if (e.code == "ELOCKED") {
-                                sleepProcessRead(curr_obj, key);
+                                sleepProcessRead(curr_obj, key)
+                                    .then(res => resolve(res))
+                                    .catch(err => reject(err));
                             } else {
                                 console.log(e);
                             }
@@ -333,7 +342,9 @@ class Database {
                         })
                         .catch(e => {
                             if (e.code == "ELOCKED") {
-                                sleepProcessDelete(curr_obj, key);
+                                sleepProcessDelete(curr_obj, key)
+                                    .then(res => resolve(res))
+                                    .catch(err => reject(err));
                             } else {
                                 console.log(e);
                             }
