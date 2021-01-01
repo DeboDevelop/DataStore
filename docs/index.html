@@ -129,10 +129,46 @@
                 
                 <li><a
                   href='#database'
-                  class="">
+                  class=" toggle-sibling">
                   Database
-                  
+                  <span class='icon'>▸</span>
                 </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  
+                    <ul class='list-reset py1-ul pl1'>
+                      <li class='h5'><span>Instance members</span></li>
+                      
+                      <li><a
+                        href='#databasefileexist'
+                        class='regular pre-open'>
+                        #fileExist
+                      </a></li>
+                      
+                      <li><a
+                        href='#databasecreatedata'
+                        class='regular pre-open'>
+                        #createData
+                      </a></li>
+                      
+                      <li><a
+                        href='#databasereaddata'
+                        class='regular pre-open'>
+                        #readData
+                      </a></li>
+                      
+                      <li><a
+                        href='#databasedeletedata'
+                        class='regular pre-open'>
+                        #deleteData
+                      </a></li>
+                      
+                    </ul>
+                  
+                  
+                  
+                </div>
                 
                 </li>
               
@@ -221,7 +257,7 @@ TTL is time to live</p>
   
     <p>
       Type:
-      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a>
+      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>
     </p>
   
   
@@ -273,7 +309,7 @@ TTL is time to live</p>
   <p>This function is used to achieve TTL on a certain key.
 This function should not be directly called and should only be used through createData method of Database class.</p>
 
-    <div class='pre p1 fill-light mt0'>deleteFileAfterSomeTime(database: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>, filename: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, seconds: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a>): void</div>
+    <div class='pre p1 fill-light mt0'>deleteFileAfterSomeTime(database: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>, filename: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, seconds: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>): void</div>
   
   
 
@@ -317,7 +353,7 @@ This function should not be directly called and should only be used through crea
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>seconds</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a>)</code>
+            <span class='code bold'>seconds</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
 	    The no. of seconds after which it will be deleted.
 
           </div>
@@ -372,7 +408,7 @@ This function should not be directly called and should only be used through crea
 
   <p>Check whether the Config file exist or not.</p>
 
-    <div class='pre p1 fill-light mt0'>checkConfigFile(file_p: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></div>
+    <div class='pre p1 fill-light mt0'>checkConfigFile(file_p: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -404,7 +440,7 @@ This function should not be directly called and should only be used through crea
   
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">Boolean</a></code>:
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
         return whether the file exist or not.
 
       
@@ -572,7 +608,7 @@ This function should not be directly called and should only be used through crea
 
   <p>Simple hash function to generate a hash from a key.</p>
 
-    <div class='pre p1 fill-light mt0'>keyHash(key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></div>
+    <div class='pre p1 fill-light mt0'>keyHash(key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></div>
   
   
 
@@ -604,7 +640,7 @@ This function should not be directly called and should only be used through crea
   
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a></code>:
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>:
         It returns a no. between 0 to 9 depending on the key.
 
       
@@ -644,7 +680,7 @@ This function should not be directly called and should only be used through crea
 
   <p>This function puts a createData process to sleep for 5 seconds.</p>
 
-    <div class='pre p1 fill-light mt0'>sleepProcessCreate(obj: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>, key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, value: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>, seconds: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></div>
+    <div class='pre p1 fill-light mt0'>sleepProcessCreate(obj: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>, key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, value: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>, seconds: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></div>
   
   
 
@@ -688,7 +724,7 @@ This function should not be directly called and should only be used through crea
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>seconds</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">Number</a>)</code>
+            <span class='code bold'>seconds</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
 	    if TTL is enabled for the data then it contains the no. of seconds otherwise undefined.
 
           </div>
@@ -962,6 +998,384 @@ This function should not be directly called and should only be used through crea
   
 
   
+
+  
+    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='databasefileexist'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>fileExist(file_name)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>This function exist whether the given file exist or not. Very useful to check if somebody deleted a shard.</p>
+
+    <div class='pre p1 fill-light mt0'>fileExist(file_name: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>file_name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    the name of the file which this function will check.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
+        return true if file exist else false
+
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">let</span> bool = database.fileExist(<span class="hljs-string">"0.json"</span>);</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='databasecreatedata'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>createData(key, value, seconds = undefined)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>This function is used by the user to create data.</p>
+
+    <div class='pre p1 fill-light mt0'>createData(key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, value: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>, seconds: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>key</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    The key of the corresponding value. Must be String.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>value</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</code>
+	    The value of the given string. Must be JSON.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>seconds</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?
+            = <code>undefined</code>)</code>
+	    Optional seconds parameter for the TTL feature.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></code>:
+        Returns a Promise which will resolve when the data has been written in the file.
+
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">let</span> d1 = database.createData(<span class="hljs-string">"someKey"</span>, someValue, [someSeconds])
+     d1.then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
+         <span class="hljs-comment">//do something</span>
+     }).catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> {
+         <span class="hljs-comment">//do something</span>
+     });</pre>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">func</span>(<span class="hljs-params"></span>) </span>{
+         <span class="hljs-keyword">try</span> {
+             <span class="hljs-keyword">let</span> d1 = <span class="hljs-keyword">await</span> database.createData(<span class="hljs-string">"someKey"</span>, someValue, [someSeconds])
+             <span class="hljs-comment">//do somthing</span>
+         } <span class="hljs-keyword">catch</span>(err) {
+             <span class="hljs-comment">//do something</span>
+         }
+     }</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='databasereaddata'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>readData(key)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>This function is used by the user to read data.</p>
+
+    <div class='pre p1 fill-light mt0'>readData(key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>key</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    The key for which value must be fetched. Must be String.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></code>:
+        Returns a Promise which will resolve when the data has been fetched from the file.
+
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">let</span> d1 = database.readData(<span class="hljs-string">"someKey"</span>)
+     d1.then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
+         <span class="hljs-comment">//do something</span>
+     }).catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> {
+         <span class="hljs-comment">//do something</span>
+     });</pre>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">func</span>(<span class="hljs-params"></span>) </span>{
+         <span class="hljs-keyword">try</span> {
+             <span class="hljs-keyword">let</span> d1 = <span class="hljs-keyword">await</span> database.readData(<span class="hljs-string">"someKey"</span>)
+             <span class="hljs-comment">//do somthing</span>
+         } <span class="hljs-keyword">catch</span>(err) {
+             <span class="hljs-comment">//do something</span>
+         }
+     }</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='databasedeletedata'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>deleteData(key)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>This function is used by the user to delete data.</p>
+
+    <div class='pre p1 fill-light mt0'>deleteData(key: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>key</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    The key for which key &#x26; value must be deleted. Must be String.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a></code>:
+        Returns a Promise which will resolve when the data has been deleted from the file.
+
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">let</span> d1 = database.deleteData(<span class="hljs-string">"someKey"</span>)
+     d1.then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
+         <span class="hljs-comment">//do something</span>
+     }).catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> {
+         <span class="hljs-comment">//do something</span>
+     });</pre>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">func</span>(<span class="hljs-params"></span>) </span>{
+         <span class="hljs-keyword">try</span> {
+             <span class="hljs-keyword">let</span> d1 = <span class="hljs-keyword">await</span> database.deleteData(<span class="hljs-string">"someKey"</span>)
+             <span class="hljs-comment">//do somthing</span>
+         } <span class="hljs-keyword">catch</span>(err) {
+             <span class="hljs-comment">//do something</span>
+         }
+     }</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
 
   
 
