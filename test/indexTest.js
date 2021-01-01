@@ -130,4 +130,40 @@ describe("Testing Database", function () {
             });
         }, 2 * 1000);
     });
+
+    describe("Test9", function () {
+        it("readData should fail because key is not string", async function () {
+            let result;
+            try {
+                result = await database1.readData(123456);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Key have to be String");
+        });
+    });
+
+    describe("Test10", function () {
+        it("readData should fail because key doesn't exist", async function () {
+            let result;
+            try {
+                result = await database1.readData("abcdef");
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Key doesn't exist");
+        });
+    });
+
+    describe("Test11", function () {
+        it("readData should succeed", async function () {
+            let result;
+            try {
+                result = await database1.readData(key1);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.status, "Success");
+        });
+    });
 });
