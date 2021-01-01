@@ -205,7 +205,6 @@ class Database {
         }
     }
     createData(key, value, seconds = undefined) {
-        console.log("Size: " + size);
         if (size >= 1024 * 1024 * 1024) {
             return new Promise(function (resolve, reject) {
                 reject({ status: "Error", msg: "Size of Database is more than 1 GB, please delete some files." });
