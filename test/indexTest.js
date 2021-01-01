@@ -25,7 +25,7 @@ describe("Testing Database", function () {
             let config_file_path = path.join(database1.file_path, "config");
             rimraf.sync(data_file_path);
             rimraf.sync(config_file_path);
-        }, 10 * 1000);
+        }, 5 * 1000);
     });
 
     describe("Test1", function () {
@@ -164,6 +164,42 @@ describe("Testing Database", function () {
                 result = err;
             }
             assert.equal(result.status, "Success");
+        });
+    });
+
+    describe("Test12", function () {
+        it("deleteData should fail because key is not string", async function () {
+            let result;
+            try {
+                result = await database1.deleteData(123456);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Key have to be String");
+        });
+    });
+
+    describe("Test13", function () {
+        it("deleteData should succeed", async function () {
+            let result;
+            try {
+                result = await database1.deleteData(key1);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "File is Successfully Deleted.");
+        });
+    });
+
+    describe("Test14", function () {
+        it("deleteData should fail because key doesn't exist", async function () {
+            let result;
+            try {
+                result = await database1.deleteData(key1);
+            } catch (err) {
+                result = err;
+            }
+            assert.equal(result.msg, "Key doesn't exist");
         });
     });
 });
