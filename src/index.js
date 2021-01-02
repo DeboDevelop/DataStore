@@ -140,6 +140,7 @@ function deleteOutdatedFile(database) {
             if (config_data[i].exp_time < curr_time) {
                 //deleting the data if the data has expired.
                 let x = database.deleteData(config_data[i].key);
+                //console.log(config_data[i].key);
                 x.then(res => {
                     console.log(config_data[i].key + " is Outdated so it has been deleted.");
                     //console.log(res);
@@ -660,12 +661,14 @@ class Database {
                 } catch (e) {
                     if (e.code == "ELOCKED") {
                         //putting the process to sleep as some other process is using the file.
-                        sleepProcessDelete(curr_obj, key);
-                    } else {
-                        //putting the process to sleep as some other process is using the same file.
                         sleepProcessDelete(curr_obj, key)
                             .then(res => resolve(res))
                             .catch(err => reject(err));
+                    } else {
+                        //returning appropriate promise
+                        return new Promise(function (resolve, reject) {
+                            reject(e);
+                        });
                     }
                 }
             }
