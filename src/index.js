@@ -653,24 +653,21 @@ class Database {
             }
             //Thsi block will execute if teh data is not found in LRU cache.
             if (file_obj == undefined) {
-                //Locking the file for reading operation
-                lockfile
-                    .lock(file_p)
-                    .then(release => {
-                        //Reading the data from the file.
-                        file_obj = fs.readFileSync(file_p, "utf-8");
-                        //Release the lock if reading is doen.
-                        return release();
-                    })
-                    .catch(e => {
-                        if (e.code == "ELOCKED") {
-                            //putting the process to sleep as some other process is using the file.
-                            sleepProcessDelete(curr_obj, key);
-                        } else {
-                            //logging the error if an error occur but that should not stop the upcoming execution.
-                            console.log(e);
-                        }
-                    });
+                try {
+                    let release = lockfile.lockSync(file_p);
+                    file_obj = JSON.parse(fs.readFileSync(file_p, "utf-8"));
+                    release();
+                } catch (e) {
+                    if (e.code == "ELOCKED") {
+                        //putting the process to sleep as some other process is using the file.
+                        sleepProcessDelete(curr_obj, key);
+                    } else {
+                        //putting the process to sleep as some other process is using the same file.
+                        sleepProcessDelete(curr_obj, key)
+                            .then(res => resolve(res))
+                            .catch(err => reject(err));
+                    }
+                }
             }
             //Checking whether the key exist or not.
             if (file_obj.hasOwnProperty(key)) {
