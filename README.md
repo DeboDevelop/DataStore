@@ -1,6 +1,6 @@
 # DataStore
 
-DataStore is hybrid database and memory cache. It stores data as key-value pair in files. However, it also maintains an LRU cache for fast data retrieval. It also has a TTL(Time To Live) feature using which data can have a expire time. The data will expire after certain no. of seconds. It can be used as a local storage for backend more specifically node server.
+DataStore is hybrid Key Value Store and memory cache. It stores data as key-value pair in files. However, it also maintains an LRU cache for fast data retrieval. It also has a TTL(Time To Live) feature using which data can have a expire time. The data will expire after certain no. of seconds. It can be used as a local storage for backend more specifically node server.
 
 [![Build Status](https://travis-ci.com/DeboDevelop/DataStore.svg?branch=main)](https://travis-ci.com/DeboDevelop/DataStore)
 
